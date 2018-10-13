@@ -1,0 +1,64 @@
+﻿@model Tbs.DomainModels.Dto.WxOutletDto
+
+@{
+    ViewBag.Title = "接箱";
+    Layout = "~/Views/Shared/_LayoutWX.cshtml";
+}
+
+<div class="weui-panel weui-panel_access">
+    <div class="weui-panel__hd">身份信息</div>
+    <div class="weui-panel__bd">
+        <a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+            <div class="weui-media-box__hd">
+                <img class="weui-media-box__thumb" src="data:image/jpg;base64, @Model.Photo" alt="无照片">
+            </div>
+            <div class="weui-media-box__bd">
+                <h4 class="weui-media-box__title">交接员一: @Model.WorkerName @Model.WorkerCn</h4>
+                <h4 class="weui-media-box__title">身份证: @Model.IDNumber</h4>
+            </div>
+        </a>
+        <a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+            <div class="weui-media-box__hd">
+                <img class="weui-media-box__thumb" src="data:image/jpg;base64, @Model.Photo2" alt="无照片">
+            </div>
+            <div class="weui-media-box__bd">
+                <h4 class="weui-media-box__title">交接员二: @Model.WorkerName2 @Model.WorkerCn2</h4>
+                <h4 class="weui-media-box__title">身份证: @Model.IDNumber2</h4>
+            </div>
+        </a>
+        <a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+            <div class="weui-media-box__hd">
+                <img class="weui-media-box__thumb" src="data:image/jpg;base64, @Model.VehiclePhoto" alt="无照片">
+            </div>
+            <div class="weui-media-box__bd">
+                <h4 class="weui-media-box__title">车牌：@Model.License</h4>
+                <h4 class="weui-media-box__title">车号: @Model.VehicleCn</h4>
+            </div>
+        </a>
+    </div>
+</div>
+<div class="weui-panel weui-panel_access">
+    <div class="weui-panel__hd">尾箱信息</div>
+    <div class="weui-panel__bd">
+        @for (int i = 0; i < Model.TaskBoxs.Count; i++)
+        {
+            <div class="weui-media-box weui-media-box_text">
+                <h4 class="weui-media-box__title">尾箱号：@Model.TaskBoxs[i].BoxCn</h4>
+                <p class="weui-media-box__desc">@Model.TaskBoxs[i].Remark</p>
+            </div>
+        }
+    </div>
+</div>
+<div class="weui-btn-area">
+    <input class="weui-btn weui-btn_primary" type="button" value="确认" onclick="confirm()">
+</div>
+
+@section footer
+{
+    <script> 
+        function confirm() {
+            weui.alert('网点确认');
+            window.history.back();
+        }
+    </script> 
+}

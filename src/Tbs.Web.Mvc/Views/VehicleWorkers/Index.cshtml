@@ -1,0 +1,112 @@
+﻿@model int
+<table id="datagrid" title="车辆交接人员列表" class="easyui-datagrid"
+        fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true" sortName="cn">
+    <thead>
+        <tr>
+            <th field="cn" width="70" align="center">车辆编号</th>
+            <th field="license" width="70">车牌号</th>
+            <th field="mainWorkerId" width="100" formatter="workerFormatter">主交接员</th>
+            <th field="subWorkerId" width="100" formatter="workerFormatter">副交接员</th>
+            <th field="_operate" width="70" align="center" formatter="operator">操作</th>
+        </tr>
+    </thead>
+</table>
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" type="hidden" name="id" value="0">
+            <input id="depotId" type="hidden" name="depotId" value="@Model">
+            <tr>
+                <th><Label for="cn">车辆编号:</Label></th>
+                <td><input name="cn" class="easyui-textbox" data-options="required: true" readonly="readonly" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="license">车牌号:</Label></th>
+                <td><input name="license" class="easyui-textbox" data-options="required: true" readonly="readonly" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for=mainWorkerId>主交接员：</label></th>
+                <td><select id="mainWorkerId" name="mainWorkerId" class="easyui-combobox" style="width: 100%" /></td>
+            </tr>
+            <tr>
+                <th><label for=subWorkerId>副交接员：</label></th>
+                <td><select id="subWorkerId" name="subWorkerId" class="easyui-combobox" style="width: 100%" /></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-save" onclick="save()">保存</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#dlg').dialog('close')">取消</a>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(function () {
+            var depotId = $('#depotId').val();
+            abp.services.app.combo.getWorkerItems(depotId).done(function (data) {
+                $('#mainWorkerId').combobox({
+                    data: data,
+                    valueField: 'id',
+                    textField: 'displayText'
+                });
+                $('#subWorkerId').combobox({
+                    data: data,
+                    valueField: 'id',
+                    textField: 'displayText'
+                });
+
+                $('#datagrid').datagrid({
+                    url: 'VehicleWorkers/GridData/DepotId=' + depotId
+                });
+            });
+        });
+
+        function edit(index) {
+            var row = $('#datagrid').datagrid('getRows')[index];
+            $('#dlg').dialog('open').dialog('setTitle', '编辑');
+            $('#fm').form('load', row);
+        }
+
+        function save() {
+            if (!$('#fm').form('validate'))
+                return;
+            var fd = new FormData(document.getElementById('fm'));         
+            abp.ui.setBusy($('#dlg'), sendFdAjax(fd));
+        }
+
+        function sendFdAjax(data) {
+            return abp.ajax({
+                contentType: false,
+                processData: false,
+                url: 'VehicleWorkers/UpdateEntity',
+                data: data,
+                success: function (data) {
+                    abp.notify.info(data.content);
+                    $('#dlg').dialog('close');
+                    $('#datagrid').datagrid('reload');
+                }
+            });
+        }
+
+        // formatters
+        function workerFormatter(val, row, index) {
+            if (val)
+            {
+                var workers = $('#mainWorkerId').combobox('getData');
+                for (var i = 0; i < workers.length; i++) {
+                    if (workers[i].id == val)
+                        return workers[i].displayText;
+                }
+            }
+        }
+
+        function operator(val, row, index) {
+            return '<a href="javascript:void(0)" class="easyui-linkbutton" onclick="edit(' + index + ')">编辑</a>';
+        }
+
+    </script>
+}

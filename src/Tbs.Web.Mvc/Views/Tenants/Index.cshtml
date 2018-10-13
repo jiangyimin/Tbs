@@ -1,0 +1,65 @@
+﻿@using Abp.MultiTenancy
+@using Tbs.MultiTenancy
+@using Tbs.Web.Startup
+@model Abp.Application.Services.Dto.ListResultDto<Tbs.MultiTenancy.Dto.TenantListDto>
+
+@section scripts
+{
+    <environment names="Development">
+        <script src="~/view-resources/Views/Tenants/Index.js" asp-append-version="true"></script>
+    </environment>
+
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/Tenants/Index.min.js" asp-append-version="true"></script>
+    </environment>
+}
+
+<table id="dg" title="租户列表" class="easyui-datagrid" toolbar="#tb"
+        fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true" >
+    <thead>
+        <tr>
+            <th field="TenantName" width="100" align="center">TenantName</th>
+            <th field="Name" width="100">Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tenant in Model.Items)
+        {
+            <tr>
+                <td>@tenant.TenancyName</td>
+                <td>@tenant.Name</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div id="tb">
+    <a name="add" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+</div>
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" title="添加" closed="true" modal="true" buttons="#dlg-tb" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <tr>
+                <th><label for="TenacyName">TenancyName</label></th>
+                <td><input id="TenancyName" name="TenancyName" class="easyui-textbox" data-options="required:true, validType:'length[2, @Tenant.MaxTenancyNameLength]'" style="width:100%"></td>
+            </tr>
+            <tr>
+                <th><label for="Name">Name</label></th>
+                <td><input name="Name" class="easyui-textbox" data-options="required:true, validType:'length[0, @Tenant.MaxNameLength]'" style="width:100%"></td>
+            </tr>
+            <tr>
+                <th><label for="ConnectionString">数据库连接串(可选)</label></th>
+                <td><input name="ConnectionString" class="easyui-textbox" data-options="validType:'length[0, @AbpTenantBase.MaxConnectionStringLength]'" style="width:100%"></td>
+            </tr>
+            <tr>
+                <th><label for="AdminEmailAddress">AdminEmailAddress</label></th>
+                <td><input name="AdminEmailAddress" class="easyui-textbox" data-options="validType:'length[0, @Tbs.Authorization.Users.User.MaxEmailAddressLength]'" style="width:100%"></td>
+            </tr>
+        </table>
+    </form>
+    <div id="dlg-tb">
+        <a name="save" class="easyui-linkbutton" iconCls="icon-save" style="width:90px">保存</a>
+        <a name="cancel" class="easyui-linkbutton" iconCls="icon-cancel" style="width:90px">取消</a>
+    </div>
+</div>

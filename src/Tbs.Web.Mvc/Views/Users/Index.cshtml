@@ -1,0 +1,83 @@
+﻿@using Abp.Authorization.Users
+@using Tbs.Web.Startup
+@{
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+@section scripts
+{
+    <environment names="Development">
+        <script src="~/view-resources/Views/Users/Index.js" asp-append-version="true"></script>
+    </environment>
+
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/Users/Index.min.js" asp-append-version="true"></script>
+    </environment>
+
+    <script type="text/javascript">
+        function displayRoleText (val) {
+            var roles = $('#roleName').combobox('getData');
+            for (var i = 0; i < roles.length; i++) {
+                if (val === roles[i].name) 
+                    return roles[i].displayName;
+            };
+            return val;
+        }
+    </script>
+}
+
+<table id="dg" title="用户列表" class="easyui-datagrid" toolbar="#tb" url="Users/GridData"
+        fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true" >
+    <thead>
+        <tr>
+            <th field="userName" width="80">用户名</th>
+            <th field="name" width="80">显示名称</th>
+            <th field="depotSide" width="60">是否在分部端</th>
+            <th field="roleName" width="80" formatter="displayRoleText">角色</th>
+            <th field="whName" width="80">所在库房</th>
+            <th field="operatePassword" width="80">操作密码</th>
+            <th field="lastLoginTime" width="160">最后登录时间</th>
+            <th field="creationTime" width="160">创建时间</th>
+        </tr>
+    </thead>
+</table>
+<div id="tb">
+    <a name="add" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+    <a name="remove" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+    <a name="edit" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+</div>
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-tb" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <tr>
+                <th><label for="userName">用户名：</label></th>
+                <td><input id="UserName" name="userName" class="easyui-textbox" data-options="required:true, validType:'length[2, @AbpUserBase.MaxUserNameLength]'" style="width:100%"></td>
+            </tr>
+            <tr>
+                <th><label for="name">显示名称：</label></th>
+                <td><input name="name" class="easyui-textbox" data-options="required:true, validType:'length[2, @AbpUserBase.MaxNameLength]'" style="width:100%"></td>
+            </tr>
+            <tr>
+                <th><label for="depotSide">分部端：</label></th>
+                <td><input name="depotSide" class="easyui-switchbutton" data-options="height:24,onText:'是',offText:'否'"></td>
+            </tr>
+            <tr>
+                <th><label for="roleName">用户角色：</label></th>
+                <td><input id="roleName" name="roleName" class="easyui-combobox" style="width:100%"></td>
+            </tr>
+            <tr>
+                <th><label for="whName">所在库房：</label></th>
+                <td><input id="whName" name="whName" class="easyui-textbox"  data-options="validType:'length[2, @Warehouse.MaxNameLength]'" style="width:100%"></td>
+            </tr>
+            <tr>
+                <th><label for="operatePassword">操作密码：</label></th>
+                <td><input id="operatePassword" name="operatePassword" class="easyui-textbox"  data-options="validType:'length[@getSV(SettingNames.EntityRules.PasswordMinLength), @Tbs.Authorization.Users.User.MaxOperatePasswordLength]'" style="width:100%"></td>
+            </tr>
+        </table>
+    </form>
+    <div id="dlg-tb">
+        <a name="save" class="easyui-linkbutton" iconCls="icon-save" style="width:90px">保存</a>
+        <a name="cancel" class="easyui-linkbutton" iconCls="icon-cancel" style="width:90px">取消</a>
+    </div>
+</div>

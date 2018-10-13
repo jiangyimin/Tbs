@@ -1,0 +1,84 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'VaultRoles';
+        crud.options.title = '金库操作角色';
+        crud.options.sortName = 'name';
+        crud.options.parentField = 'vaultTypeId';
+        crud.options.children = true;
+        crud.options.columns = [[
+            { field: "name", title: "角色名称", width: 100 },
+            { field: "required", title: "是否必须", width: 100 },
+            { field: "single", title: "是否单人角色", width: 200 },
+        ]];
+    </script>
+}
+
+@section endScript
+{
+    <script type="text/javascript">
+        crud.startfunction = function () {
+            $.getComboItems('#vaultTypeId', 'VaultType', 'Id', 'Name').done(function(types) {
+                var treeData = [];
+                types.forEach( function (val, index, arr) {
+                    treeData.push({ id: val.value, text: val.displayText });
+                });
+                $('#tree').tree({
+                    data: treeData,
+                    onSelect: function (node) {
+                        crud.options.parentId = node.id;
+                        $('#datagrid').datagrid({
+                            url: crud.options.name + '/GridPagedData/' + "VaultTypeId==" + node.id
+                        });
+                    }
+                });
+            });
+        };
+
+
+    </script>
+}
+
+@section headHtml
+{
+    <div class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'west', split:true, minWidth:80, width:120, title:'金库操作类型'">
+            <ul id="tree" class="easyui-tree" style="margin-top:6px"></ul>
+        </div>
+        <div data-options="region:'center', border:false">
+}
+@section footHtml
+{
+        </div>
+    </div>
+}
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" name="id" type="hidden">
+            <tr>
+                <th><label for="name">角色名称：</label></th>
+                <td><input name="name" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.NormalNameMinLength), @RouteRole.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="required">是否必须：</Label></th>
+                <td><input name="required" class="easyui-switchbutton" data-options="height:24,onText:'是',offText:'否'"></td>
+            </tr>
+            <tr>
+                <th><Label for="single">是否单人角色：</Label></th>
+                <td><input name="single" class="easyui-switchbutton" data-options="height:24,onText:'是',offText:'否'"></td>
+            </tr>
+            <tr>
+                <th><label for="vaultTypeId">线路类型：</label></th>
+                <td><select id="vaultTypeId" name="vaultTypeId" class="easyui-combobox" readonly="readonly" style="width: 100%" /></td>
+            </tr>
+        </table>
+    </form>
+</div>

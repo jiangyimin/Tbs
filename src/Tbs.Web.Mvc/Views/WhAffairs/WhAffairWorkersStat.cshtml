@@ -1,0 +1,64 @@
+﻿@model Tbs.Web.Models.WhAffairsViewModel
+
+<table id="dg" class="easyui-datagrid" toolbar="#tb"
+        fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true">
+    <thead>
+        <tr>
+            <th field="worker" width="60">人员</th>
+            <th field="name" width="60">库房名称</th>
+            <th field="dayCount" width="60">天数</th>
+            <th field="noCheckInCount" width="60">未签入次数</th>
+            <th field="noCheckOutCount" width="60">未签出次数</th>
+        </tr>
+    </thead>
+</table>
+<div id="tb" style="padding:2px 5px;">
+    <select id="depot" class="easyui-combobox" style="width:80px" value="@Model.UserDepots[0].Id">
+        @foreach (var depot in Model.UserDepots)
+        {
+            <option value="@depot.Id">@depot.Name</option>       
+        }
+    </select>
+    &nbsp;&nbsp;&nbsp;&nbsp;            
+    开始日期: <input id="ddBegin" class="easyui-datebox" style="width:100px">
+    结束日期: <input id="ddEnd" class="easyui-datebox" style="width:100px">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="stat()">开始统计</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="$.toExcel('#dg', '签到记录')">导出到Excel</a>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        var depotId;
+        $(function() {
+            $('#depot').combobox({
+                onChange: contentChange
+            });
+            contentChange();
+        });
+
+        // contentChange
+        function contentChange()
+        {
+            depotId = $('#depot').combobox('getValue');
+        }
+      
+        function stat() {
+            var ddBegin = $('#ddBegin').datebox('getValue');
+            var ddEnd = $('#ddEnd').datebox('getValue');
+            if (ddBegin.length == 0 || ddEnd.length == 0) {
+                abp.notify.warn("请输入日期");
+                return;
+            }
+
+            abp.ui.setBusy($('#tb'));
+            abp.services.app.whAffair.stat(depotId, ddBegin, ddEnd).done(function (data) {
+                $('#dg').datagrid('loadData', data);
+            }).always(function () {
+                abp.ui.clearBusy($('#tb'));
+            });
+        }
+            
+    </script>
+}

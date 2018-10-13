@@ -1,0 +1,85 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'DepotSignins';
+        crud.options.title = '签到时段';
+        crud.options.parentField = 'depotId';
+        crud.options.children = true;
+        crud.options.columns = [[
+            { field: "name", title: "名称", width: 100 },
+            { field: "startTime", title: "开始时间", width: 120 },
+            { field: "endTime", title: "截止时间", width: 120 },
+            { field: "lateTime", title: "迟到时间", width: 120 }
+        ]];
+    </script>
+}
+
+@section endScript
+{
+    <script type="text/javascript">
+        crud.startfunction = function () {
+            $.getComboItems('#depotId', 'Depot', 'Id', 'Name').done(function(depots) {
+                var treeData = [];
+                depots.forEach( function (val, index, arr) {
+                    treeData.push({ id: val.value, text: val.displayText });
+                });
+                $('#tree').tree({
+                    data: treeData,
+                    onSelect: function (node) {
+                        crud.options.parentId = node.id;
+                        $('#datagrid').datagrid({
+                            url: crud.options.name + '/GridPagedData/' + "DepotId=" + node.id
+                        });
+                    }
+                });
+            });
+        };
+    </script>
+}
+
+@section headHtml
+{
+    <div class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'west', split:true, minWidth:80, width:120, title:'@getSV(SettingNames.UI.DepotName)'">
+            <ul id="tree" class="easyui-tree" style="margin-top:6px"></ul>
+        </div>
+        <div data-options="region:'center', border:false">
+}
+@section footHtml
+{
+        </div>
+    </div>
+}
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" class="easyui-form" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" name="id" type="hidden">
+                <th><label for="name">名称：</label></th>
+                <td><input name="name" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.NormalNameMinLength), @DepotSignin.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="startTime">开始时间：</label></th>
+                <td><input name="startTime" class="easyui-timespinner" data-options="required:true" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="endTime">截止时间：</label></th>
+                <td><input name="endTime" class="easyui-timespinner" data-options="required:true" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="lateTime">迟到时间：</label></th>
+                <td><input name="lateTime" class="easyui-timespinner" data-options="required:true" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="depotId">所属中心：</label></th>
+                <td><select id="depotId" name="depotId" class="easyui-combobox" readonly="readonly" style="width: 100%" /></td>
+            </tr>
+        </table>
+    </form>
+</div>

@@ -1,0 +1,29 @@
+﻿@model int
+
+<table id="dg" title="物品列表" class="easyui-datagrid" toolbar="#tb"
+       fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true"
+       url="ArticleListGridData/@Model"
+       pagination="true" pageSize="20" sortName="cn">
+    <thead>
+        <tr>
+            <th field="cn" width="60" align="center">编号</th>
+            <th field="name" width="150">名称</th>
+            <th field="articleTypeName" width="60">物品类型</th>
+            <th field="rfid" width="80">Rrid码</th>
+            <th field="bindInfo" width="80">绑定信息</th>
+            <th field="articleRecordInfo" width="300">领用归还信息</th>
+        </tr>
+    </thead>
+</table>
+<div id="tb">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="refresh()">刷新</a>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        function refresh() {
+            $('#dg').datagrid('reload');
+        }
+    </script>
+}

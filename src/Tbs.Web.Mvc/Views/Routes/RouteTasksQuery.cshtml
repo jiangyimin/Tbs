@@ -1,0 +1,83 @@
+﻿@model Tbs.Web.Models.RouteTasksViewModel
+
+<table id="dg" title="任务类别列表" class="easyui-datagrid" toolbar="#tb"
+           fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true" >
+    <thead>
+        <tr>
+            <th field="CarryoutDate" formatter="dateFormatter" width="70" align="center">任务日期</th>
+            <th field="RouteNo" width="50">线路编号</th>
+            <th field="Vehicle" width="60">车辆</th>
+            <th field="TaskTypeName" width="50">任务类型</th>
+            <th field="OutletName" width="80">网点</th>
+            <th field="Remark" width="80">任务说明</th>
+            @for (int i = 0; i < Model.Roles.Count; i++)
+            {
+                <th field="@i" formatter="workerFormatter" width="70">@Model.Roles[i].Name</th>
+            }
+        </tr>
+    </thead>
+</table>
+<div id="tb">
+    开始日期: <input id="ddBegin" class="easyui-datebox" style="width:100px">
+    结束日期: <input id="ddEnd" class="easyui-datebox" style="width:100px">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        @for (int i = 0; i < Model.Types.Count; i++)
+        {
+            <input name="types" type='checkbox' value="@Model.Types[i].Id"><label>@Model.Types[i].Name</label>
+        }
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" onclick="query()">查询</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="$.ToExcel('#dg', '任务列表')">Exeel</a>
+</div>
+        
+@section scripts
+{
+    <script type="text/javascript">
+        $(function () {
+            controller = "/RTask/VehicleWorker/";
+
+        });
+
+        // formatters
+        function workerFormatter(val, row, index) {
+            if (row.Workers != null)
+                return row.Workers[this.field];
+        }
+        function dateFormatter(val) {
+            return val.substring(0, 10);
+        }
+
+        function stat() {
+            var ddBegin = $('#ddBegin').datebox('getValue');
+            var ddEnd = $('#ddEnd').datebox('getValue');
+            if (ddBegin.length == 0 || ddEnd.length == 0) {
+                mfx.notify.warn("请输入日期");
+                return;
+            }
+
+            var obj = document.getElementsByName("types");
+            var check_val = [];
+            for (var i = 0; i < obj.length; i++) {
+                if (obj[i].checked)
+                    check_val.push(obj[i].value);
+            }
+            if (check_val.length == 0) {
+                mfx.notify.warn("请选择任务类型");
+                return;
+            }
+                
+            mfx.ui.setBusy(
+                $('#tb'),
+                mfx.ajax({
+                    url: controller + 'GetTaskList',
+                    type: 'POST',
+                    data: JSON.stringify({ from: ddBegin, to: ddEnd, types: check_val }),
+                    success: function (data) {
+                        $('#dg').datagrid('loadData', data)
+                    }
+                })
+            );
+        }
+
+    </script>
+}

@@ -1,0 +1,34 @@
+﻿@model Cls.Weixins.Dto.WxWorkersInfo
+
+@{
+    ViewBag.Title = "查看车辆人员";
+    Layout = "~/Views/Shared/_LayoutWX.cshtml";
+}
+
+<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+    <div class="weui-media-box__hd2">
+        <img class="weui-media-box__thumb" src="data:image/jpg;base64, @Model.Photo" alt="无照片">
+    </div>
+    <div class="weui-media-box__bd">
+        <h3 class="weui-media-box__title">姓名工号: @Model.WorkerName @Model.WorkerId</h3>
+        <h3 class="weui-media-box__title">ID: @Model.IDNumber</h3>
+    </div>
+</a>
+<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+    <div class="weui-media-box__hd2">
+        <img class="weui-media-box__thumb" src="data:image/jpg;base64, @Model.Photo2" alt="无照片">
+    </div>
+    <div class="weui-media-box__bd">
+        <h3 class="weui-media-box__title">姓名工号: @Model.WorkerName2 @Model.WorkerId2</h3>
+        <h3 class="weui-media-box__title">ID: @Model.IDNumber2</h3>
+    </div>
+</a>
+<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+    <div class="weui-media-box__hd2">
+        <img class="weui-media-box__thumb" src="data:image/jpg;base64, @Model.VehiclePhoto" alt="无照片">
+    </div>
+    <div class="weui-media-box__bd">
+        <h3 class="weui-media-box__title">车牌：@Model.License</h3>
+        <h3 class="weui-media-box__title">车号: @Model.VehicleId</h3>
+    </div>
+</a>

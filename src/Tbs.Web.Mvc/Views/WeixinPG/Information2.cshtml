@@ -1,0 +1,56 @@
+﻿@model Tbs.DomainModels.Dto.WxIdentifyDto
+
+@{
+    ViewBag.Title = "核对身份信息";
+    Layout = "~/Views/Shared/_LayoutWX.cshtml";
+}
+
+@section header{
+    <style type="text/css">
+        @@-webkit-keyframes fadeOut {
+            0%   { opacity: 1; }
+            25%  { opacity: 0.8; }
+            50%  { opacity: 0.6; }
+            50%  { opacity: 0.4; }
+            100% { opacity: 0; }
+        }
+
+        #cipertext {
+            -webkit-animation-name: fadeOut;
+            -webkit-animation-duration: 10s;
+            -webkit-animation-iteration-count: 1;
+            -webkit-animation-delay: 0s;
+            -webkit-animation-fill-mode: forwards;
+        }
+    </style>
+}
+<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+    <div class="weui-media-box__hd2">
+        <img class="weui-media-box__thumb" src="data:image/png;base64, @Model.Photo" alt="无照片">
+    </div>
+    <div class="weui-media-box__bd">
+        <h3 class="weui-media-box__title">交接员一: @Model.WorkerName @Model.WorkerCn</h3>
+        <h3 class="weui-media-box__title">ID: @Model.IDNumber</h3>
+    </div>
+</a>
+<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+    <div class="weui-media-box__hd2">
+        <img class="weui-media-box__thumb" src="data:image/jpg;base64, @Model.Photo2" alt="无照片">
+    </div>
+    <div class="weui-media-box__bd">
+        <h3 class="weui-media-box__title">交接员二: @Model.WorkerName2 @Model.WorkerCn2</h3>
+        <h3 class="weui-media-box__title">ID: @Model.IDNumber2</h3>
+    </div>
+</a>
+<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+    <div class="weui-media-box__hd2">
+        <img class="weui-media-box__thumb" src="data:image/jpg;base64, @Model.VehiclePhoto" alt="无照片">
+    </div>
+    <div class="weui-media-box__bd">
+        <h3 class="weui-media-box__title">车牌：@Model.License</h3>
+        <h3 class="weui-media-box__title">车号: @Model.VehicleCn</h3>
+    </div>
+</a>
+<div id="cipertext">
+    <h2 style="text-align: center">@Model.OutletName:@Model.OutletCipertext</h2>
+</div>

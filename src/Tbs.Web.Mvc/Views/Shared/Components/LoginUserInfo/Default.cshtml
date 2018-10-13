@@ -1,0 +1,15 @@
+﻿@model Tbs.Web.Views.Shared.Components.LoginUserInfo.LoginUserInfoViewModel
+
+<!--@if (Model.CompanyImageName != null)
+{
+    <span><img url="~/images/logowater.jpg" style="margin-top:1px; height:40px; width:40px;"></span>
+}-->
+@if (Model.UserDisplayInfo != null)
+{
+    <span class="title-user">@Model.UserDisplayInfo</span>
+}
+@if (Model.CompanyName != null)
+{
+    <span class="title-company">@Model.CompanyName</span>
+}
+

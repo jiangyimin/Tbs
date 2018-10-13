@@ -1,0 +1,64 @@
+﻿@model Cls.Web.Models.Account.LoginFormViewModel
+@{
+    ViewBag.Title = "押运管理-登录";
+}
+<div id="LoginWindow" class="easyui-window" title="登录" data-options="modal:true, closed:true, iconCls:'icon-lock', closable:false, minimizable:false, maximizable:false" style="width: 400px; padding: 0px 40px 15px 40px;">
+    <form id="LoginForm" role="form">
+        <input type="hidden" id="TenancyName" value="">
+
+        <div style="margin-top:15px">
+            <input class="easyui-textbox" id="EmailAddressInput" type="text" style="width:100%; height:30px; padding:10px;" data-options="prompt:'用户名', iconCls:'icon-man', iconWidth:38, required:true, validType:length[0,@Cls.Users.User.MaxEmailAddressLength]" >
+        </div>
+        
+        <div style="margin-top:15px">
+            <input class="easyui-textbox" id="PasswordInput" type="password" style="width:100%; height:30px; padding:10px;" data-options="prompt:'Password', iconCls:'icon-lock', iconWidth:38, required:true, validType:length[0,@Cls.Users.User.MaxPasswordLength]" >
+        </div>
+
+        <div style="margin-top:15px">
+            <input class="easyui-textbox" id="CodeInput" type="text" style="width:50%; height:30px; padding:10px;" data-options="prompt:'验证码'">
+            <img style="margin: 1px 8px 1px 3px; vertical-align: middle; height: 26px;" src="/Account/VerifyCode" onclick="refreshVerifyCode(this)">
+            <label style="font-size:12px">
+                <input type="checkbox" id="RememberMeInput" style="vertical-align: middle; height:26px;">记住我
+            </label>
+        </div>
+
+        <div style="margin-top:15px">
+            <a onclick="doLogin()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="padding:5px 0px;width:100%;">
+               <span style="font-size:14px;">登录</span>
+            </a>
+        </div>
+    </form>
+</div>
+
+@section footer
+{
+    <script type="text/javascript">
+        $(function () {
+            $('#LoginWindow').window('open');
+        });
+
+        function refreshVerifyCode(obj) {
+            obj.src = "/Account/VerifyCode/" + Math.floor(Math.random() * 10000);
+        }
+
+        function doLogin() {
+            mfx.ui.setBusy(
+                $('#LoginWindow'),
+                mfx.ajax({
+                    url: mfx.appPath + 'Account/Login',
+                    type: 'POST',
+                    data: JSON.stringify({
+                        tenancyName: $('#TenancyName').val(),
+                        usernameOrEmailAddress: $('#EmailAddressInput').val(),
+                        password: $('#PasswordInput').val(),
+                        code: $('#CodeInput').val(),
+                        rememberMe: $('#RememberMeInput').is(':checked'),
+                    })
+                })
+            );
+
+            $('#EmailAddressInput').focus();
+
+        }
+    </script>
+}

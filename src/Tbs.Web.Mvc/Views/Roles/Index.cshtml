@@ -1,0 +1,88 @@
+﻿@using Abp.Authorization.Roles;
+@model System.Collections.Generic.IReadOnlyList<Abp.Authorization.Permission>
+    
+@section scripts
+{
+    <environment names="Development">
+        <script src="~/view-resources/Views/Roles/Index.js" asp-append-version="true"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/Roles/Index.min.js" asp-append-version="true"></script>
+    </environment>
+}
+
+<div id="mainLayout" class="easyui-layout" fit="true">
+    <div data-options="region:'west', split:true" style="width:600px">
+        <div class="easyui-layout" fit="true">
+            <div data-options="region:'north', split:true" style="height:150px">
+                <table id="dg" title="租户列表" class="easyui-datagrid"
+                        fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true" >
+                    <thead>
+                        <tr>
+                            <th field="tenancyName" width="100">租户名称</th>
+                            <th field="name" width="100">显示名称</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div data-options="region:'center'">
+                <table id="dgRole" title="租户角色" class="easyui-datagrid" toolbar="#tb"
+                    fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true" >
+                    <thead>
+                        <tr>
+                            <th field="name" width="100">名称</th>
+                            <th field="displayName" width="100">显示名称</th>
+                        </tr>
+                    </thead>
+                </table>
+                <div id="tb">
+                    <a name="add" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+                    <a name="remove" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+                    <a name="grant" class="easyui-linkbutton" iconCls="icon-lock" plain="true">赋予权限</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div data-options="region:'center'">
+        <table id="dgPermission" title="权限列表" class="easyui-datagrid"
+                fit="true" fitColumns="true" rownumbers="true" singleSelect="false" striped="true" >
+            <thead>
+                <tr>
+                    <th field="ck" checkbox="true"></th>
+                    <th field="Name" width="100">名称</th>
+                    <th field="DisplayName" width="100">显示名</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var permission in Model)
+            {
+                <tr>
+                    <td></td>
+                    <td>@permission.Name</td>
+                    <td>@permission.DisplayName</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" title="新建版本" closed="true" modal="true" buttons="#dlg-tb" align="center" style="width: 360px; padding: 10px;">
+    <form name="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <tr>
+                <th><label for="Name">名称：</label></th>
+                <td><input id="Name" name="Name" class="easyui-textbox" data-options="required:true, validType:'length[2,@AbpRoleBase.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="DisplayName">显示名称：</label></th>
+                <td><input name="DisplayName" class="easyui-textbox" data-options="required:true, validType:'length[2,@AbpRoleBase.MaxDisplayNameLength]'" style="width: 100%"></td>
+            </tr>
+        </table>
+    </form>
+    <div id="dlg-tb">
+        <a name="save" class="easyui-linkbutton" iconCls="icon-save" style="width:90px">保存</a>
+        <a name="cancel" class="easyui-linkbutton" iconCls="icon-cancel" style="width:90px">取消</a>
+    </div>
+</div>

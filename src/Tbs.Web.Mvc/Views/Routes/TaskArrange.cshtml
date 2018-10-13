@@ -1,0 +1,270 @@
+﻿@model Tbs.Web.Models.RoutesViewModel
+@section scripts
+{
+    <environment names="Development">
+        <script src="~/js/crudMS.js" asp-append-version="true"></script>
+        <script src="~/view-resources/Views/Routes/taskarrange.js" asp-append-version="true"></script>
+    </environment>
+
+    <environment names="Staging,Production">
+        <script src="~/js/crudMS.min.js" asp-append-version="true"></script>
+        <script src="~/view-resources/Views/Routes/taskarrange.min.js" asp-append-version="true"></script>
+    </environment>
+
+    <script type="text/javascript">
+        function routeTypeFormatter (val) {
+            var lst = $('#routeTypeId').combobox('getData');
+            for (var i = 0; i < lst.length; i++) {
+                if (val === parseInt(lst[i].value)) 
+                    return lst[i].displayText;
+            };
+            return val;
+        }
+        
+        function vehicleFormatter (val) {
+            var lst = $('#vehicleId').combobox('getData');
+            for (var i = 0; i < lst.length; i++) {
+                if (val === lst[i].id) 
+                    return lst[i].displayText;
+            };
+            return val;
+        }
+
+        function workerFormatter (val, row, index)
+        {
+            return row.workerCn + ' ' + row.workerName;
+        }
+
+        function outletFormatter (val) {
+            var lst = $('#outletId').combobox('getData');
+            for (var i = 0; i < lst.length; i++) {
+                if (val === parseInt(lst[i].id)) 
+                    return lst[i].displayText;
+            };
+            return val;
+        }
+
+        function taskTypeFormatter (val) {
+            var lst = $('#taskTypeId').combobox('getData');
+            for (var i = 0; i < lst.length; i++) {
+                if (val === parseInt(lst[i].value)) 
+                    return lst[i].displayText;
+            };
+            return val;
+        }
+
+        function statusFormatter (value, row, index) {
+            if (row.activateInfo && row.activateInfo.length > 0)
+                return row.activateInfo; 
+            else
+                return value;
+        }
+
+        function statusStyler (value, row, index) {
+            if (value === '安排' && row.activateInfo === '')
+                return 'background-color:green;color:white';
+            if (row.activateInfo && row.activateInfo.length > 0)
+                return 'background-color:red;color:white'; 
+        }
+    </script>
+}
+
+<div class="easyui-layout" fit="true">
+    <div data-options="region:'north', split:true" style="min-height:100px; height:50%">
+        <div id="tb">
+            任务日期: <input id="dd" class="easyui-datebox" readonly="readonly" style="width:100px" value="@Model.Today">
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="crudMS.reload()">刷新</a>
+        </div>
+        <table id="dg" class="easyui-datagrid" toolbar="#tb"
+               fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true" sortName="routeCn">               
+            <thead>
+                <tr>
+                    <th field="carryoutDate" width="60" align="center" formatter="$.dateFormatter">日期</th>
+                    <th field="status" width="90" align="center" formatter="statusFormatter" styler="statusStyler">状态</th>
+                    <th field="routeTypeId" width="50" formatter="routeTypeFormatter">线路类型</th>
+                    <th field="routeCn" width="50">线路编号</th>
+                    <th field="routeName" width="60">线路名称</th>
+                    <th field="setoutTime" width="60">出发时间</th>
+                    <th field="returnTime" width="60">返回时间</th>
+                    <th field="vehicleId" width="80" formatter="vehicleFormatter">车辆信息</th>
+                    <th field="remark" width="100">备注</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div data-options="region:'center', border:false">
+        <div class="easyui-layout" fit="true">
+            <div data-options="region:'west', split:true" style="min-width:200px; width:50%">
+                <table id="dgSon1" title="人员列表" class="easyui-datagrid" toolbar="#tbSon1"
+                        fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true" sortName="workerCn">
+                    <thead>
+                        <tr>
+                            <th field="workerCn" width="70" align="center" formatter="workerFormatter">人员编号</th>
+                            <th field="routeRoleName" width="50">角色</th>
+                            <th field="recordList" width="80">物品领用记录</th>
+                            <th field="lendTime" width="50" formatter="$.timeFormatter">领用时间</th>
+                            <th field="returnTime" width="50" formatter="$.timeFormatter">归还时间</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div data-options="region:'center'">
+                <div id="tbSon2">
+                    <a name="add" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="crudMS.addNewSon2()">添加</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a name="routeIdentify" href="javascript:void(0)" class="easyui-linkbutton">查看清单外身份确认记录</a>
+                </div>
+                <table id="dgSon2" title="任务列表" class="easyui-datagrid" toolbar="#tbSon2"
+                       fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true"
+                       sortName="arriveTime">
+                    <thead>
+                        <tr>
+                            <th field="arriveTime" width="70" align="center">预计时间</th>
+                            <th field="outletId" width="90" formatter="outletFormatter">网点</th>
+                            <th field="taskTypeId" width="50" formatter="taskTypeFormatter">任务类型</th>
+                            <th field="identifyTime" width="80">身份确认时间</th>
+                            <th field="qtum" width="50">工作量</th>
+                            <th field="remark" width="30">备注</th>
+                            <th field="_operate" width="60" align="center" formatter="crudMS.operatorSon2">操作</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*主弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" type="hidden" name="id" value="0">
+            <input id="depotId" type="hidden" name="depotId" value="@Model.DepotId">
+            <input id="carryoutDate" name="carryoutDate" type="hidden">
+            <tr>
+                <th><Label for="routeTypeId">线路类型:</Label></th>
+                <td><select id="routeTypeId" name="routeTypeId" class="easyui-combobox" data-options="required: true" style="width: 100%" /></td>
+            </tr>
+            <input name="status" type="hidden">
+            <tr>
+                <th><Label for="routeCn">线路编号:</Label></th>
+                <td><input name="routeCn" class="easyui-textbox" data-options="required:true, validType:'length[1, @PreRoute.MaxCnLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="routeName">线路名称:</Label></th>
+                <td><input name="routeName" class="easyui-textbox" data-options="required:true, validType:'length[1, @PreRoute.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="setoutTime">开始时间:</Label></th>
+                <td><input name="setoutTime" class="easyui-timespinner" data-options="required: true" style="width:100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="returnTime">结束时间:</Label></th>
+                <td><input name="returnTime" class="easyui-timespinner" data-options="required: true" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="vehicleId">车辆：</label></th>
+                <td><select id="vehicleId" name="vehicleId" class="easyui-combobox" style="width: 100%" /></td>
+            </tr>
+            <tr>
+                <th><Label for="remark">备注:</Label></th>
+                <td><input name="remark" class="easyui-textbox" data-options="validType:'length[1, @PreRoute.MaxRemarkLength]'" style="width: 100%"></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-save" onclick="crudMS.save()">保存</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#dlg').dialog('close')">取消</a>
+</div>
+     
+@*弹窗Son1(Worker)*@
+<div id="dlgSon1" class="easyui-dialog" closed="true" modal="true" buttons="#dlgSon1-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fmSon1" method="post" novalidate>
+        <table class="edit-tbl">
+            <input type="hidden" id="idSon1" name="id">
+            <input type="hidden" id="routeId" name="routeId" value="0">
+            <tr>
+                <th><Label for="workerId">人员:</Label></th>
+                <td><select id="workerId" name="workerId" class="easyui-combobox" data-options="required: true" style="width: 100%" /></td>
+            </tr>
+            <tr>
+                <th><Label for="routeRoleId">角色:</Label></th>
+                <td><select id="routeRoleId" name="routeRoleId" class="easyui-combobox" data-options="required: true" style="width: 100%" /></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="dlgSon1-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-save" onclick="crudMS.saveSon1()">保存</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#dlgSon1').dialog('close')">取消</a>
+</div>
+
+@*弹窗Son2(Task)*@
+<div id="dlgSon2" class="easyui-dialog" closed="true" modal="true" buttons="#dlgSon2-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fmSon2" method="post" novalidate>
+        <table class="edit-tbl">
+            <input type="hidden" id="idSon2" name="id">
+            <input type="hidden" id="routeId2" name="routeId" value="0">
+            <input type="hidden" id="identifyTime" name="identifyTime">
+            <tr>
+                <th><Label for="arriveTime">到达时间:</Label></th>
+                <td><input id="arriveTime" name="arriveTime" class="easyui-timespinner" data-options="required: true" style="width:100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="outletId">网点:</Label></th>
+                <td><select id="outletId" name="outletId" class="easyui-combobox" data-options="required: true" style="width: 100%" /></td>
+            </tr>
+            <tr>
+                <th><label for="taskTypeId">任务类型：</label></th>
+                <td><select id="taskTypeId" name="taskTypeId" class="easyui-combobox" data-options="required: true" style="width: 100%" /></td>
+            </tr>
+            <tr>
+                <th><Label for="qtum">工作量:</Label></th>
+                <td><input name="qtum" class="easyui-numberbox" data-options="validType:'length[1, 3]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="remark">备注:</Label></th>
+                <td><input name="remark" class="easyui-textbox" data-options="validType:'length[1, @RouteTask.MaxRemarkLength]'" style="width: 100%"></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="dlgSon2-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-save" onclick="crudMS.saveSon2()">保存</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#dlgSon2').dialog('close')">取消</a>
+</div>
+
+@*激活Dialog*@
+<div id="dlgActivate" class="easyui-dialog" buttons="#dlgActivate-buttons" title="激活" closed="true" modal="true" style="width:360px;">
+    <form id="fmActivate" method="post" novalidate>
+        <object classid="clsid:87772C8D-3C8C-4E55-A886-5BA5DA384424" id="ZAZFingerActivex"
+                name="ZAZFingerActivex" width="0" height="0" accesskey="a" tabindex="0" title="finger"></object>
+        <table class="edit-tbl">
+            <input type="hidden" name="Finger" value="@Model.Finger" />
+            <input type="hidden" name="OperatePassword" value="@Model.OperatePassword" />
+            <tr>
+                <th><label for="Password">密码：</label></th>
+                <td><input id="Password" name="Password" class="easyui-textbox" data-options="validType:'length[5,8]'" style="width: 100%"></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="dlgActivate-buttons">
+    <a name="validFinger" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-man">指纹验证</a>
+    <a name="validPassword" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-lock">密码验证</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#dlgActivate').dialog('close')">取消</a>
+</div>
+
+@*弹窗RouteIdentify)*@
+<div id="dlgRouteIdentify" class="easyui-dialog" title="清单外身份确认记录" closed="true" modal="true" align="center" style="height: 600px; width: 450px; padding: 10px;">
+    <table id="dgRouteIdentify" class="easyui-datagrid"
+            fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true" sortName="identifyTime">               
+        <thead>
+            <tr>
+                <th field="identifyTime" width="60" align="center" formatter="$.timeFormatter">身份确认时间</th>
+                <th field="outletId" width="100" formatter="outletFormatter">网点</th>
+            </tr>
+        </thead>
+    </table>
+</div>

@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'LoginAttempts';
+        crud.options.title = '登录日志';
+        crud.options.readonly = true;
+        crud.options.filter = 'Result=1';
+        crud.options.sortName= 'creationTime';
+        crud.options.sortOrder = 'desc';
+        crud.options.columns = [[
+            { field: "userNameOrEmailAddress", title: "输入的用户名", width: 60 },
+            { field: "clientIpAddress", title: "IP地址", width: 80 },
+            { field: "clientName", title: "机器名称", width: 100 },
+            { field: "browserInfo", title: "浏览器", width: 200 },
+            { field: "creationTime", title: "发生时间", width: 110 }
+        ]];
+    </script>
+}

@@ -1,0 +1,61 @@
+﻿@using Tbs.Configuration
+@using Abp.Configuration.Startup
+@model Tbs.Web.Models.Account.LoginFormViewModel
+@inject IMultiTenancyConfig MultiTenancyConfig
+@{
+    ViewBag.Title = "登录";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+@section styles
+{
+    <style>
+        .login-container {
+            width: 350px;
+            padding: 30px 30px 10px 30px;
+        }
+        .login-container .form-group {
+            margin-bottom: 15px;
+        }
+    </style>
+}
+@section scripts
+{
+    <environment names="Development">
+        <script src="~/view-resources/Views/Account/Login.js" asp-append-version="true"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/Account/Login.min.js" asp-append-version="true"></script>
+    </environment>
+}
+
+<div id="LoginArea" class="easyui-window login-container" title="登录"
+         data-options="modal:true, iconCls:'icon-lock', closable:false, minimizable:false, maximizable:false">
+    <form asp-action="Login" id="LoginForm" method="POST">
+        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+        <input type="hidden" name="returnUrlHash" />
+        @if (MultiTenancyConfig.IsEnabled) {
+        <div class="form-group">
+            <input id="TenantName" class="easyui-textbox" style="width:100%; height: 30px; padding-left:10px;" data-options="prompt:'公司名称'">
+        </div>
+        }
+        <div class="form-group">
+            <input id="UserName" type="text" class="easyui-textbox" name="usernameOrEmailAddress" style="width: 100%; height: 30px; padding-left:10px;"
+                    data-options="prompt:'@L("UserNameOrEmail")', iconCls:'icon-man', iconWidth:38, required:true, validType:['length[@getSV(SettingNames.EntityRules.UserNameMinLength), @Tbs.Authorization.Users.User.MaxUserNameLength]']">
+        </div>
+        <div class="form-group">
+            <input type="password" class="easyui-textbox" name="password" style="width: 100%; height: 30px; padding-left: 10px;"
+                    data-options="prompt:'Password', iconCls:'icon-lock', iconWidth:38, required:true, validType:['length[@getSV(SettingNames.EntityRules.PasswordMinLength), @Tbs.Authorization.Users.User.MaxPlainPasswordLength]']">
+        </div>
+        <div class="form-group">
+            <label style="vertical-align: middle; height:30px;">
+                <input type="checkbox" name="RememberMe" value="true"> @L("RememberMe")
+            </label>
+        </div>
+        <div class="form-group">
+            <button id="LoginButton" type="submit" class="easyui-linkbutton" style="width:100%; height: 30px;"
+                    iconCls="fa fa-sign-in">
+                @L("LogIn")
+            </button>
+        </div>
+    </form>
+</div>

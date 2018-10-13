@@ -1,0 +1,108 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'Vehicles';
+        crud.options.title = '车辆';
+        crud.options.sortName = 'cn';
+        crud.options.parentField = 'depotId';
+        crud.options.columns = [[
+            { field: "cn", title: "编号", width: 100 },
+            { field: "license", title: "车牌号", width: 100 },
+            { field: "photo", title: "有否照片", width: 80, formatter: photoFormatter },
+            { field: "depotId", title: "所属"+abp.setting.get('@SettingNames.UI.DepotName'), width: 100, formatter: $.displayDepotText }
+        ]];
+        function photoFormatter(val, row, index) {
+            if (row.photo.length > 0)
+                return '(有)'
+        }
+    </script>
+}
+
+@section endScript
+{
+    <script type="text/javascript">
+        crud.startfunction = function () {
+            $.getComboItems('#depotId', 'Depot', 'Id', 'Name').done(function(depots) {
+                var treeData = [];
+                depots.forEach( function (val, index, arr) {
+                    treeData.push({ id: val.value, text: val.displayText });
+                });
+                $('#tree').tree({
+                    data: treeData,
+                    onSelect: function (node) {
+                        crud.options.parentId = node.id;
+                        $('#datagrid').datagrid({
+                            url: crud.options.name + '/GridPagedData/' + "DepotId=="+node.id
+                        });
+                    }
+                });
+            });
+        };
+
+        crud.endfunction = function () {
+            // photo Preview processes
+            $("#fm").form({
+                onLoadSuccess: function (row) {
+                    if (row && row.id > 0) {
+                        $("#preview").attr("src", "Vehicles/GetPhoto/" + row.id);
+                    }
+                },
+            });
+
+            $("#dlg").dialog({
+                onClose: function () {
+                    var obj = document.getElementById('photoFile');
+                    obj.outerHTML = obj.outerHTML;
+                    $("#preview").attr("src", "");
+                }
+            });
+        };
+    </script>
+}
+
+@section headHtml
+{
+    <div class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'west', split:true, minWidth:80, width:120, title:'@getSV(SettingNames.UI.DepotName)'">
+            <ul id="tree" class="easyui-tree" style="margin-top:6px"></ul>
+        </div>
+        <div data-options="region:'center', border:false">
+}
+@section footHtml
+{
+        </div>
+    </div>
+}
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" name="id" type="hidden">
+            <tr>
+                <th><label for="cn">编号：</label></th>
+                <td><input name="cn" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.VehicleCnLength), @getSV(SettingNames.EntityRules.VehicleCnLength)]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="license">车牌号:</Label></th>
+                <td><input name="license" class="easyui-textbox" data-options="required:true, validType:'length[@Vehicle.LicenseLength, @Vehicle.LicenseLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="PhotoImage">照片:</Label></th>
+                <td>
+                    <img id="preview" alt="" src="" style="width:100px; height:110px;" />
+                    <input id="photoFile" name="photoFile" type="file" onchange="$.setImagePreview('#preview', this)" />
+                </td>
+            </tr>
+            <tr>
+                <th><label for="depotId">所属中心：</label></th>
+                <td><select id="depotId" name="depotId" class="easyui-combobox" style="width: 100%" /></td>
+            </tr>
+        </table>
+    </form>
+</div>

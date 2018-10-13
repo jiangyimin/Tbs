@@ -1,0 +1,104 @@
+﻿@model List<Depot>
+<div id="layout" class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'west', split:true, minWidth:70, width:360, title:'物品列表'">
+        <table id="dg" class="easyui-datagrid"
+               fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true"
+               pagination="true" pageSize="20" sortName="cn">
+            <thead>
+                <tr>
+                    <th field="cn" width="60" align="center">编号</th>
+                    <th field="name" width="80">名称</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div data-options="region:'center', border:false">
+        <table id="dg2" title="物品领用记录" class="easyui-datagrid" toolbar="#tb"
+               fit="true" fitColumns="true" rownumbers="true" singleSelect="true" striped="true">
+            <thead>
+                <tr>
+                    <th field="worker" width="60">领用人</th>
+                    <th field="article" width="100">物品</th>
+                    <th field="lendTime" width="60">领用时间</th>
+                    <th field="returnTime" width="60">归还时间</th>
+                    <th field="remark" width="160">备注</th>
+                </tr>
+            </thead>
+        </table>
+        <div id="tb" style="padding:2px 5px;">
+            <select id="depot" class="easyui-combobox" style="width:80px" value="@Model[0].Id">
+                @foreach (var depot in Model)
+                {
+                    <option value="@depot.Id">@depot.Name</option>       
+                }
+            </select>
+            &nbsp;&nbsp;&nbsp;&nbsp;            
+            开始日期: <input id="ddBegin" class="easyui-datebox" style="width:100px">
+            结束日期: <input id="ddEnd" class="easyui-datebox" style="width:100px">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="searchRecordByDay()">按日期查询</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="searchRecordById()">按物品查询</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="$.toExcel('#dg2', '领用记录')">导出到Excel</a>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        var depotId;
+        $(function() {
+            $('#depot').combobox({
+                onChange: contentChange
+            });
+            contentChange();
+        });
+
+        // contentChange
+        function contentChange()
+        {
+            depotId = $('#depot').combobox('getValue');
+            // alert(depotId);
+            $('#dg').datagrid({
+                url: "/Articles/GridPagedData/DepotId=" + depotId
+            });
+        }
+      
+        function searchRecordByDay() {
+            var ddBegin = $('#ddBegin').datebox('getValue');
+            if (ddBegin.length == 0) {
+                abp.notify.warn("请输入日期");
+                return;
+            }
+
+            abp.ui.setBusy($('#tb'));
+            abp.services.app.record.searchByDay(depotId, ddBegin).done(function (data) {
+                $('#dg2').datagrid('loadData', data);
+            }).always(function () {
+                abp.ui.clearBusy($('#tb'));
+            });
+        }
+            
+        function searchRecordById() {
+            var row = $('#dg').datagrid('getSelected');
+            if (!row) {
+                abp.notify.warn("请先选择物品");
+                return;
+            }
+
+            var ddBegin = $('#ddBegin').datebox('getValue');
+            var ddEnd = $('#ddEnd').datebox('getValue');
+            if (ddBegin.length == 0 || ddEnd.length == 0) {
+                abp.notify.warn("请输入日期");
+                return;
+            }
+
+            abp.ui.setBusy($('#tb'));
+            abp.services.app.record.searchByArticleId(depotId, row.id, ddBegin, ddEnd).done(function (data) {
+                $('#dg2').datagrid('loadData', data);
+            }).always(function () {
+                abp.ui.clearBusy($('#tb'));
+            });
+        }
+    </script>
+}

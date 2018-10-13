@@ -1,0 +1,39 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'Managers';
+        crud.options.title = '管理人员';
+        crud.options.sortName = 'cn';
+        crud.options.columns = [[
+            { field: "cn", title: "编号", width: 100 },
+            { field: "name", title: "姓名", width: 100 },
+            { field: "mobile", title: "密码授权信息", width: 100 },
+        ]];
+    </script>
+}
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" name="id" type="hidden">
+            <tr>
+                <th><label for="cn">编号：</label></th>
+                <td><input name="cn" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.WorkerCnLength), @getSV(SettingNames.EntityRules.WorkerCnLength)]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="name">姓名:</Label></th>
+                <td><input name="name" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.NormalNameMinLength), @Worker.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+             <tr>
+                <th><Label for="mobile">密码授权信息:</Label></th>
+                <td><input name="mobile" class="easyui-textbox" data-options="validType:'length[@Worker.MobileLength, @Worker.MobileLength]'" style="width: 100%"></td>
+            </tr>
+        </table>
+    </form>
+</div>

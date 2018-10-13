@@ -1,0 +1,105 @@
+﻿@using Tbs.Web.Views.Shared.Components.LoginUserInfo
+@{
+    ViewBag.Title = "押运系统";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+@section Styles {
+    <style>
+        #top-bar { background-color: darkslategray; width: 100%; height: 100%; overflow: hidden}
+        #top-bar .bar-left { float: left; vertical-align: middle }
+        #top-bar .title { color: white; font-size: x-large; font-weight: bold; margin-left: 15px; }
+        #top-bar .title-company { color: whitesmoke; font-size: x-large;  margin-left: 15px; }
+        #top-bar .title-user { color: white; font-size: large;  margin-left: 45px; }
+        #top-bar .bar-right { float: right; vertical-align: middle; }
+
+        #menu-accordion .panel-title{ font-weight: normal;}
+        #menu-accordion .accordion-header-selected{ background: #f3f3f3; }
+        #menu-accordion .accordion-header-selected .panel-title{ font-weight: bold;color: #575765;}
+        #menu-accordion .tree-icon { margin-top: 5px; }
+        #menu-accordion .tree-hit { margin-top: 4px; }
+        #menu-accordion .tree-node { height: 26px; }
+        #menu-accordion .tree-title { line-height: 26px; }
+    </style>
+}
+@section scripts
+{
+    <environment names="Development">
+        <script src="~/view-resources/Views/Home/Index.js" asp-append-version="true"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/Home/Index.min.js" asp-append-version="true"></script>
+    </environment>
+
+    <script type="text/javascript">
+
+        function getCurrentTabTitle() {
+            var tab = $("#main-tab").tabs('getSelected');
+            return tab.panel('options').title;
+        }
+
+        function displayRfid(str) {
+            rfid.innerHTML = str;
+        }
+    </script>    
+}
+
+<div class="easyui-layout" fit="true">
+    <div data-options="region:'north'" style="height: @getSV(SettingNames.UI.TopBarHeight); line-height: 40px">
+        <div id="top-bar">
+            <span class="bar-left">
+                <span class="title">押运系统</span>
+                @await Component.InvokeAsync(typeof(LoginUserInfoViewComponent))
+            </span>
+            <span class="bar-right">
+                <a id="changePassword" href="javascript:void(0)" class="easyui-linkbutton" style="color: white; margin-right: 5px; " plain="true">修改密码</a>
+                <a href="/Account/Logout" class="easyui-linkbutton" style="color: white; margin-right: 5px; " plain="true" iconCls="icon-cancel">退出</a>
+            </span>
+        </div>
+    </div>
+    <div data-options="region:'west',split:true,title:'导航菜单'" style="width: 150px; min-width: 100px; height:100%; ">
+        <div id="menu-accordion" class="easyui-accordion" data-options="fit:true, border:false, selected:true">
+        </div>
+    </div>
+    <div data-options="region:'center',border:false">
+        <div id="main-tab" class="easyui-tabs" data-options="fit:true, border:false">
+            <!--<div title="我的主页" iconcls="pic_209" data-options="fit:true" style="padding: 5px; overflow: hidden; ">
+                <iframe scrolling="auto" frameborder="0" src="" style="width: 100%; height: 100%;"></iframe>
+            </div>-->
+        </div>
+    </div>
+    <div data-options="region:'south'" style="height: 20px;">
+        <span id="rfid">Copyright</span>
+    </div>
+</div>
+
+<div id="tab-menu" class="easyui-menu" style="width: 150px;">
+    <div id="tab-menu-refresh" data-options="iconCls:'icon-reload'">刷新</div>
+    <div id="tab-menu-openFrame" data-options="iconCls:'pic_138'">新窗口打开</div>
+    <div class="menu-sep"></div>
+    <div id="tab-menu-close" data-options="iconCls:'icon-remove'">关闭</div>
+    <div id="tab-menu-closeleft" data-options="iconCls:'icon-undo'">关闭左边</div>
+    <div id="tab-menu-closeright" data-options="iconCls:'icon-redo'">关闭右边</div>
+    <div class="menu-sep"></div>
+    <div id="tab-menu-closeother" data-options="iconCls:'pic_101'">关闭其他</div>
+    <div id="tab-menu-closeall" data-options="iconCls:'pic_283'">关闭所有</div>
+</div>
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog"  title="修改密码" data-options="closed:true, modal:true" buttons="#dlg-buttons" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <tr>
+                <th><label for="NewPassword">新密码：</label></th>
+                <td><input id="NewPassword" name="NewPassword" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.PasswordMinLength), @Tbs.Authorization.Users.User.MaxPlainPasswordLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="NewPasswordAgain">再次输入：</label></th>
+                <td><input id="NewPasswordAgain" name="NewPasswordAgain" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.PasswordMinLength), @Tbs.Authorization.Users.User.MaxPlainPasswordLength]'" style="width: 100%"></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a id="submit" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-save">提交</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#dlg').dialog('close')">取消</a>
+</div>

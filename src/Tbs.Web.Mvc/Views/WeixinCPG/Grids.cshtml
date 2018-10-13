@@ -1,0 +1,128 @@
+﻿@{
+    ViewBag.Title = "菜单选择";
+    Layout = "~/Views/Shared/_LayoutWX.cshtml";
+}
+
+<div class="page js_show">
+    <div class="page__hd">
+        <h1 class="page__title">工行兴城分理处</h1>
+        <h1 class="page__desc">101011</h1>
+    </div>
+    <div class="page__bd">
+
+    <div class="weui-grids">
+        <a href="javascript:;" class="weui-grid">
+            <div class="weui-grid__icon">
+                <img src="~/images/icon_nav_layout.png" alt="">
+            </div>
+            <p class="weui-grid__label">交箱</p>
+        </a>
+        <a href="javascript:receiveBox();" class="weui-grid">
+            <div class="weui-grid__icon">
+                <img src="~/images/icon_nav_nav.png" alt="">
+            </div>
+            <p class="weui-grid__label">接箱</p>
+        </a>
+        <a href="javascript:;" class="weui-grid">
+            <div class="weui-grid__icon">
+                <img src="~/images/icon_nav_form.png" alt="">
+            </div>
+            <p class="weui-grid__label">尾箱管理</p>
+        </a>
+        <a href="javascript:;" class="weui-grid">
+            <div class="weui-grid__icon">
+                <img src="~/images/icon_nav_feedback.png" alt="">
+            </div>
+            <p class="weui-grid__label">线路查询</p>
+        </a>
+        <a href="javascript:;" class="weui-grid">
+            <div class="weui-grid__icon">
+                <img src="~/images/icon_nav_search.png" alt="">
+            </div>
+            <p class="weui-grid__label">其他查询</p>
+        </a>
+        <a href="javascript:;" class="weui-grid">
+            <div class="weui-grid__icon">
+                <img src="~/images/icon_nav_special.png" alt="">
+            </div>
+            <p class="weui-grid__label">下单</p>
+        </a>
+        <a href="javascript:;" class="weui-grid">
+            <div class="weui-grid__icon">
+                <img src="~/images/icon_tabbar.png" alt="">
+            </div>
+            <p class="weui-grid__label">预留</p>
+        </a>
+        <a href="javascript:;" class="weui-grid">
+            <div class="weui-grid__icon">
+                <img src="~/images/icon_tabbar.png" alt="">
+            </div>
+            <p class="weui-grid__label">预留</p>
+        </a>
+    </div>
+    </div>
+</div>
+
+@section footer
+{
+<script>
+    wx.config({
+      debug: false,
+      appId: '@ViewBag.appId',
+      timestamp: @ViewBag.timestamp,
+      nonceStr: '@ViewBag.noncestr',
+      signature: '@ViewBag.signature',
+      jsApiList: [
+        'checkJsApi',
+        'onMenuShareTimeline',
+        'onMenuShareAppMessage',
+        'onMenuShareQQ',
+        'onMenuShareWeibo',
+        'hideMenuItems',
+        'showMenuItems',
+        'hideAllNonBaseMenuItem',
+        'showAllNonBaseMenuItem',
+        'translateVoice',
+        'startRecord',
+        'stopRecord',
+        'onRecordEnd',
+        'playVoice',
+        'pauseVoice',
+        'stopVoice',
+        'uploadVoice',
+        'downloadVoice',
+        'chooseImage',
+        'previewImage',
+        'uploadImage',
+        'downloadImage',
+        'getNetworkType',
+        'openLocation',
+        'getLocation',
+        'hideOptionMenu',
+        'showOptionMenu',
+        'closeWindow',
+        'scanQRCode',
+        'chooseWXPay',
+        'openProductSpecificView',
+        'addCard',
+        'chooseCard',
+        'openCard'
+      ]
+    });
+
+    wx.ready( function() {
+        weui.toast('已准备好', 1000);
+    });
+
+    function receiveBox() {
+        wx.scanQRCode({
+            desc: 'scanQRCode desc', 
+            needResult: 1,
+            scanType: ["qrCode"],
+            success: function (res) {
+                window.location.href="/WeixinCPG/ReceiveBox/@ViewBag.tenantId";
+            }
+        });
+    }
+</script>
+}

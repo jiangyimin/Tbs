@@ -1,0 +1,105 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'Articles';
+        crud.options.title = "物品";
+        crud.options.sortName = 'cn';
+        crud.options.parentField = 'depotId';
+        crud.options.children = true;
+        crud.options.columns = [[
+            { field: "cn", title: "编号", width: 100 },
+            { field: "name", title: "名称", width: 100 },
+            { field: "articleTypeId", title: "物品类型", width: 100, formatter: displayTypeText },
+            { field: "rfid", title: "Rfid标识号", width: 100 },
+            { field: "bindInfo", title: "绑定信息", width: 100 },
+        ]];
+
+        function displayTypeText (val) {
+            var types = $('#articleTypeId').combobox('getData');
+            for (var i = 0; i < types.length; i++) {
+                if (val === parseInt(types[i].value)) 
+                    return types[i].displayText;
+            };
+            return val;
+        }
+    </script>
+}
+
+@section endScript
+{
+    <script type="text/javascript">
+        crud.startfunction = function () {
+            $.getComboItems('#depotId', 'Depot', 'Id', 'Cn', 'Name').done(function(depots) {
+                var treeData = [];
+                depots.forEach( function (val, index, arr) {
+                    treeData.push({ id: val.value, text: val.displayText });
+                });
+                $('#tree').tree({
+                    data: treeData,
+                    onSelect: function (node) {
+                        crud.options.parentId = node.id;
+                        $('#datagrid').datagrid({
+                            url: crud.options.name + '/GridPagedData/' + "DepotId=" + node.id
+                        });
+                    }
+                });
+            });
+        };
+
+        crud.endfunction = function () {
+            $.getComboItems('#articleTypeId', 'ArticleType', 'Id', 'Cn', 'Name');
+        };
+    </script>
+}
+
+@section headHtml
+{
+    <div class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'west', split:true, minWidth:80, width:120, title:'@getSV(SettingNames.UI.DepotName)'">
+            <ul id="tree" class="easyui-tree" style="margin-top:6px"></ul>
+        </div>
+        <div data-options="region:'center', border:false">
+}
+@section footHtml
+{
+        </div>
+    </div>
+}
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" name="id" type="hidden">
+            <tr>
+                <th><label for="cn">编号：</label></th>
+                <td><input name="cn" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.ArticleCnLength), @getSV(SettingNames.EntityRules.ArticleCnLength)]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="name">物品名称：</Label></th>
+                <td><input name="name" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.NormalNameMinLength), @Article.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="articleTypeId">物品类型：</label></th>
+                <td><select id="articleTypeId" name="articleTypeId" class="easyui-combobox" style="width: 100%" /></td>
+            </tr>
+            <tr>
+                <th><Label for="rfid">Rfid标识号：</Label></th>
+                <td><input name="rfid" class="easyui-textbox" data-options="validType:'length[2, @Article.MaxRfidLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="bindInfo">绑定信息：</Label></th>
+                <td><input name="bindInfo" class="easyui-textbox" data-options="validType:'length[2, @Article.MaxBindInfoLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="depotId">所属中心：</label></th>
+                <td><select id="depotId" name="depotId" class="easyui-combobox" readonly="readonly" style="width: 100%" /></td>
+            </tr>
+        </table>
+    </form>
+</div>

@@ -1,0 +1,89 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'Vaults';
+        crud.options.title = "金库";
+        crud.options.parentField = 'depotId';
+        crud.options.columns = [[
+            { field: "name", title: "名称", width: 100 },
+            { field: "warehouseId", title: "核实库房", width: 100, formatter: displayTypeText },
+            { field: "depotId", title: "所属"+abp.setting.get('@SettingNames.UI.DepotName'), width: 100, formatter: $.displayDepotText }
+        ]];
+
+        function displayTypeText (val) {
+            var types = $('#warehouseId').combobox('getData');
+            for (var i = 0; i < types.length; i++) {
+                if (val === parseInt(types[i].value)) 
+                    return types[i].displayText;
+            };
+            return val;
+        }
+    </script>
+}
+
+@section endScript
+{
+    <script type="text/javascript">
+        crud.startfunction = function () {
+            $.getComboItems('#depotId', 'Depot', 'Id', 'Name').done(function(depots) {
+                var treeData = [];
+                depots.forEach( function (val, index, arr) {
+                    treeData.push({ id: val.value, text: val.displayText });
+                });
+                $('#tree').tree({
+                    data: treeData,
+                    onSelect: function (node) {
+                        crud.options.parentId = node.id;
+                        $('#datagrid').datagrid({
+                            url: crud.options.name + '/GridPagedData/' + "DepotId=" + node.id
+                        });
+                    }
+                });
+            });
+        };
+
+        crud.endfunction = function () {
+            $.getComboItems('#warehouseId', 'Warehouse', 'Id', 'Name');
+        };
+    </script>
+}
+
+@section headHtml
+{
+    <div class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'west', split:true, minWidth:80, width:120, title:'@getSV(SettingNames.UI.DepotName)'">
+            <ul id="tree" class="easyui-tree" style="margin-top:6px"></ul>
+        </div>
+        <div data-options="region:'center', border:false">
+}
+@section footHtml
+{
+        </div>
+    </div>
+}
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" name="id" type="hidden">
+            <tr>
+                <th><Label for="name">金库名称：</Label></th>
+                <td><input name="name" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.NormalNameMinLength), @Article.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="warehouseId">核实库房：</label></th>
+                <td><select id="warehouseId" name="warehouseId" class="easyui-combobox" style="width: 100%" /></td>
+            </tr>
+            <tr>
+                <th><label for="depotId">所属中心：</label></th>
+                <td><select id="depotId" name="depotId" class="easyui-combobox" style="width: 100%" /></td>
+            </tr>
+        </table>
+    </form>
+</div>

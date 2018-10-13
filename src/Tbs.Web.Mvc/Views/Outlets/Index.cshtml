@@ -1,0 +1,70 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'Outlets';
+        crud.options.title = "网点";
+        crud.options.sortName = 'cn';
+        crud.options.columns = [[
+            { field: "cn", title: "编号", width: 100 },
+            { field: "name", title: "名称", width: 100 },
+            { field: "customerId", title: "所属客户", width: 100 },
+            { field: "depotId", title: "专属"+abp.setting.get('@SettingNames.UI.DepotName'), width: 100, formatter: $.displayDepotText },
+            { field: "password", title: "密码", width: 120 },
+            { field: "ciphertext", title: "交接密文", width: 120 },
+            { field: "longitude", title: "经度", width: 120 },
+            { field: "latitude", title: "纬度", width: 120 }
+        ]];
+
+    </script>
+}
+
+@section endScript
+{
+    <script type="text/javascript">
+        crud.startfunction = function () {
+            $.getComboItems('#depotId', 'Depot', 'Id', 'Name');
+        }
+
+    </script>
+}
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" class="easyui-form" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" name="id" type="hidden">
+            <tr>
+                <th><label for="cn">编号：</label></th>
+                <td><input name="cn" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.OutletCnLength), @getSV(SettingNames.EntityRules.OutletCnLength)]'" style="width: 100%"></td>
+            </tr>
+                <th><label for="name">名称：</label></th>
+                <td><input name="name" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.OutletNameMinLength), @Outlet.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+            </tr>
+                <th><label for="depotId">专属：</label></th>
+                <td><select id="depotId" name="depotId" class="easyui-combobox" style="width: 100%" /></td>
+            </tr>
+            <tr>
+                <th><label for="password">密码：</label></th>
+                <td><input name="password" class="easyui-numberbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.OutletPasswordLength),@getSV(SettingNames.EntityRules.OutletPasswordLength)]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="ciphertext">交接密文：</label></th>
+                <td><input name="ciphertext" class="easyui-numberbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.OutletPasswordLength),@getSV(SettingNames.EntityRules.OutletPasswordLength)]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="longitude">经度：</label></th>
+                <td><input name="longitude" class="easyui-numberbox" data-options="precision:6" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="latitude">纬度：</label></th>
+                <td><input name="latitude" class="easyui-numberbox" data-options="precision:6" style="width: 100%"></td>
+            </tr>
+        </table>
+    </form>
+</div>

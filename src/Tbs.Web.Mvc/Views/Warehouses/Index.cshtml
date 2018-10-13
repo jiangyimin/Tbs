@@ -1,0 +1,86 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'Warehouses';
+        crud.options.title = "库房";
+        crud.options.parentField = 'depotId';
+        crud.options.columns = [[
+            { field: "name", title: "名称", width: 80 },
+            { field: "articleTypeList", title: "可领物品类型列表", width: 80 },
+            // { field: "shiftList", title: "库房班次列表", width: 160 },
+            { field: "depotList", title: "托管分部列表", width: 120 },
+            { field: "depotId", title: "所属"+abp.setting.get('@SettingNames.UI.DepotName'), width: 100, formatter: $.displayDepotText }
+        ]];
+    </script>
+}
+
+@section endScript
+{
+    <script type="text/javascript">
+        crud.startfunction = function () {
+            $.getComboItems('#depotId', 'Depot', 'Id', 'Name').done(function(depots) {
+                var treeData = [];
+                depots.forEach( function (val, index, arr) {
+                    treeData.push({ id: val.value, text: val.displayText });
+                });
+                $('#tree').tree({
+                    data: treeData,
+                    onSelect: function (node) {
+                        crud.options.parentId = node.id;
+                        $('#datagrid').datagrid({
+                            url: crud.options.name + '/GridPagedData/' + "DepotId=" + node.id
+                        });
+                    }
+                });
+            });
+        };
+    </script>
+}
+
+@section headHtml
+{
+    <div class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'west', split:true, minWidth:80, width:120, title:'@getSV(SettingNames.UI.DepotName)'">
+            <ul id="tree" class="easyui-tree" style="margin-top:6px"></ul>
+        </div>
+        <div data-options="region:'center', border:false">
+}
+@section footHtml
+{
+        </div>
+    </div>
+}
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" name="id" type="hidden">
+            <tr>
+                <th><Label for="name">库房名称：</Label></th>
+                <td><input name="name" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.NormalNameMinLength), @Warehouse.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="articleTypeList">可领物品类型：</label></th>
+                <td><input name="articleTypeList" class="easyui-textbox" data-options="validType:'length[1, @Warehouse.ArticleTypeListLength]'" style="width: 100%" /></td>
+            </tr>
+            <!--<tr>
+                <th><label for="shiftList">库房班次列表：</label></th>
+                <td><input name="shiftList" class="easyui-textbox" data-options="validType:'length[1, @Warehouse.ShiftListLength]'" style="width: 100%" /></td>
+            </tr>-->
+            <tr>
+                <th><label for="depotList">托管分部列表：</label></th>
+                <td><input name="depotList" class="easyui-textbox" data-options="validType:'length[1, @Warehouse.DepotListLength]'" style="width: 100%" /></td>
+            </tr>
+            <tr>
+                <th><label for="depotId">所属分部：</label></th>
+                <td><select id="depotId" name="depotId" class="easyui-combobox" style="width: 100%" /></td>
+            </tr>
+        </table>
+    </form>
+</div>

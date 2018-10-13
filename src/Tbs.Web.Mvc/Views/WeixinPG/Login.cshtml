@@ -1,0 +1,36 @@
+﻿@model Tbs.Web.Models.WxLoginViewModel
+@{
+    ViewBag.Title = "登录";
+    Layout = "~/Views/Shared/_LayoutWX.cshtml";
+}
+
+@using (Html.BeginForm("Login", "WeixinPG", FormMethod.Post))
+{
+    @Html.ValidationSummary()
+    <div class="weui-cells__title" style="margin-bottom:10px">员工登录</div>
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell" style="margin-bottom:10px">
+            <input type="hidden" id="returnUrl" name="ReturnUrl" value="@Model.ReturnUrl" />
+            <input type="hidden" id="tenantId" name="TenantId" value="@Model.TenantId" />
+            <div class="weui-cell__hd"><label for="WorkerCn" class="weui-label">工号:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" id="workerCn" name="WorkerCn" type="text" value="@Model.WorkerCn" readonly="readonly" />
+            </div>
+        </div>
+        <div class="weui-cell" style="margin-bottom:10px">
+            <div class="weui-cell__hd"><label for="Password" class="weui-label">密码:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" id="password" name="Password" type="password" value="@Model.Password" placeholder="请输入密码" />
+            </div>
+        </div>
+        <div class="weui-cell" style="margin-bottom:10px">
+            <div class="weui-cell__hd"><label for="DeviceId" class="weui-label">设备号:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" id="deviceId" name="DeviceId" type="text" value="@Model.DeviceId" readonly="readonly" />
+            </div>
+        </div>
+        <div class="weui-cell">
+            <input type="submit" value="登录" class="weui-btn weui-btn_primary" />
+        </div>
+    </div>
+}

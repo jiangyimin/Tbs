@@ -1,0 +1,43 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'ArticleTypes';
+        crud.options.title = '物品类型';
+        crud.options.sortName = 'cn';
+        crud.options.columns = [[
+            { field: "cn", title: "编号", width: 80 },
+            { field: "name", title: "名称", width: 100 },
+            { field: "bindTo", title: "绑定到", width: 100 }
+        ]];
+    </script>
+}
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" name="id" type="hidden">
+            <tr>
+                <th><label for="cn">编号：</label></th>
+                <td><input name="cn" class="easyui-textbox" data-options="required:true, validType:'length[@ArticleType.MaxCnLength, @ArticleType.MaxCnLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="name">名称：</label></th>
+                <td><input name="name" class="easyui-textbox" data-options="required:true, validType:'length[1,@ArticleType.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="bindTo">绑定到：</label></th>
+                <td><select name="bindTo" class="easyui-combobox" style="width: 100%;">
+                    <option value="人">人</option>
+                    <option value="车">车</option>
+                    <option value="线">线</option>
+                </select></td>
+            </tr>
+        </table>
+    </form>
+</div>

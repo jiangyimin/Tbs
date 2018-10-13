@@ -1,0 +1,205 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'Workers';
+        crud.options.title = '工作人员';
+        crud.options.sortName = 'cn';
+        crud.options.parentField = 'depotId';
+        crud.options.columns = [[
+            { field: "cn", title: "编号", width: 100 },
+            { field: "name", title: "姓名", width: 100 },
+            { field: "password", title: "微信登录密码", width: 80 },
+            { field: "idCardNo", title: "ID卡号", width: 100 },         
+            { field: "photo", title: "有否照片", width: 80, formatter: photoFormatter },
+            { field: "finger", title: "有否指纹", width: 80, formatter: fingerFormatter },
+            { field: "idNumber", title: "身份证", width: 100 },
+            { field: "mobile", title: "手机号码", width: 100 },
+            { field: "deviceId", title: "微信设备号", width: 100 },
+            { field: "depotId", title: "所属"+abp.setting.get('@SettingNames.UI.DepotName'), width: 100, formatter: $.displayDepotText }
+        ]];
+        function photoFormatter(val, row, index) {
+            if (row.photo.length > 0)
+                return '(有)'
+        }
+        function fingerFormatter(val, row, index) {
+            if (row.finger != null)
+                return '(有)'
+        }
+    </script>
+}
+
+@section endScript
+{
+    <script type="text/javascript">
+        crud.startfunction = function () {
+            $.getComboItems('#depotId', 'Depot', 'Id', 'Name').done(function(depots) {
+                var treeData = [];
+                depots.forEach( function (val, index, arr) {
+                    treeData.push({ id: val.value, text: val.displayText });
+                });
+                $('#tree').tree({
+                    data: treeData,
+                    onSelect: function (node) {
+                        crud.options.parentId = node.id;
+                        $('#datagrid').datagrid({
+                            url: crud.options.name + '/GridPagedData/' + 'DepotId=' + node.id
+                        });
+                    }
+                });
+            });
+      
+            crud.toolbarData.push({ text: "重置当前微信设备号", iconCls: "", handler: resetDevice });
+            crud.toolbarData.push({ text: "重置所有微信设备号", iconCls: "", handler: clearDevice });
+        };
+
+        crud.endfunction = function () {
+            // photo Preview processes
+            $("#fm").form({
+                onLoadSuccess: function (row) {
+                    if (row && row.id > 0) {
+                        $("#preview").attr("src", "Workers/GetPhoto/" + row.id);
+                    }
+                },
+            });
+
+            $("#dlg").dialog({
+                onClose: function () {
+                    var obj = document.getElementById('photoFile');
+                    obj.outerHTML = obj.outerHTML;
+                    $("#preview").attr("src", "");
+                }
+            });
+        };
+
+        function resetDevice()
+        {
+            var row = $('#datagrid').datagrid('getSelected');
+            if (row == null) {
+                abp.notify.error('请选择人员记录');
+                return;
+            }
+            abp.services.app.weixin.resetDeviceId(row.id).done(function () {
+                abp.notify.info("已重置");
+                crud.reload();
+            });                                    
+        }
+
+        function clearDevice()
+        {
+            abp.message.confirm('确认要重置所有微信设备ID吗?', '请确认', function (r) {
+                if (r) {
+                    abp.services.app.weixin.resetAllDeviceId().done(function () {
+                        abp.notify.info("已重置");
+                        crud.reload();
+                    });                        
+                };
+            });
+        }
+
+        function getFinger() {
+            alert("请将手指正放在指纹仪上。");
+            fm.ZAZFingerActivex.spDeviceType = 2;
+            fm.ZAZFingerActivex.spComPort = 1;
+            fm.ZAZFingerActivex.spBaudRate = 6;
+            fm.ZAZFingerActivex.CharLen = 512;
+            fm.ZAZFingerActivex.FingerCode = "";
+            fm.ZAZFingerActivex.TimeOut = 5;
+            var mesg = fm.ZAZFingerActivex.ZAZRegFinger();
+            if (mesg == "0") {
+                $('#finger').textbox('setValue', fm.ZAZFingerActivex.FingerCode);
+            }
+        }
+
+        function validFinger() {
+            //alert("请再将手指正放在指纹仪上。");
+            fm.ZAZFingerActivex.spDeviceType = 2;
+            fm.ZAZFingerActivex.spComPort = 1;
+            fm.ZAZFingerActivex.spBaudRate = 6;
+            fm.ZAZFingerActivex.CharLen = 512;
+            fm.ZAZFingerActivex.FingerCode = "";
+            fm.ZAZFingerActivex.TimeOut = 5;
+            var mesg = fm.ZAZFingerActivex.ZAZGetImgCode();
+            if (mesg == "0") {
+                var dst = fm.ZAZFingerActivex.FingerCode;
+
+                spResult = fm.ZAZFingerActivex.ZAZMatch($('#finger').textbox('getValue'), dst);
+                abp.notify.info("验证分值为: " + spResult);
+            }
+        }
+    </script>
+}
+
+@section headHtml
+{
+    <div class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'west', split:true, minWidth:80, width:120, title:'@getSV(SettingNames.UI.DepotName)'">
+            <ul id="tree" class="easyui-tree" style="margin-top:6px"></ul>
+        </div>
+        <div data-options="region:'center', border:false">
+}
+@section footHtml
+{
+        </div>
+    </div>
+}
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" method="post" novalidate>
+        <object classid="clsid:87772C8D-3C8C-4E55-A886-5BA5DA384424" id="ZAZFingerActivex"
+                name="ZAZFingerActivex" width="0" height="0" accesskey="a" tabindex="0" title="finger">
+        </object>
+        <table class="edit-tbl">
+            <input id="id" name="id" type="hidden">
+            <tr>
+                <th><label for="cn">编号：</label></th>
+                <td><input name="cn" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.WorkerCnLength), @getSV(SettingNames.EntityRules.WorkerCnLength)]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="name">姓名:</Label></th>
+                <td><input name="name" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.NormalNameMinLength), @Worker.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="password">微信登录密码:</Label></th>
+                <td><input name="password" class="easyui-numberbox" data-options="validType:'length[@getSV(SettingNames.EntityRules.PasswordMinLength), @Worker.MaxPasswordLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="idCardNo">ID 卡号:</Label></th>
+                <td><input name="idCardNo" class="easyui-textbox" data-options="validType:'length[2, @Worker.IDCardNoMaxLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><Label for="PhotoFile">照片:</Label></th>
+                <td>
+                    <img id="preview" alt="" src="" style="width:93px; height:110px;" />
+                    <input id="photoFile" name="photoFile" type="file" onchange="$.setImagePreview('#preview', this)" />
+                </td>
+            </tr>
+            <tr>
+                <th><label for="finger">指纹：</label>
+                </th>
+                <td>
+                    <input id="finger" name="finger" class="easyui-textbox" style="width: 100%" >
+                    <a onclick="getFinger()" class="easyui-linkbutton">获取指纹</a>
+                    <a onclick="validFinger()" class="easyui-linkbutton">验证指纹</a>
+                </td>
+            </tr>
+            <tr>
+                <th><Label for="idNumber">身份证:</Label></th>
+                <td><input name="idNumber" class="easyui-textbox" data-options="validType:'length[@Worker.IDNumberLength, @Worker.IDNumberLength]'" style="width: 100%"></td>
+            </tr>
+             <tr>
+                <th><Label for="mobile">手机号码:</Label></th>
+                <td><input name="mobile" class="easyui-numberbox" data-options="validType:'length[@Worker.MobileLength, @Worker.MobileLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="depotId">所属中心：</label></th>
+                <td><select id="depotId" name="depotId" class="easyui-combobox" style="width: 100%" /></td>
+            </tr>
+        </table>
+    </form>
+</div>

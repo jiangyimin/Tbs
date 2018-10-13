@@ -1,0 +1,36 @@
+﻿@{
+    Layout=null;
+}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0" />
+    <title>二维码</title>
+
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="~/js/jquery.qrcode.min.js"></script>
+
+    <script type="text/javascript">
+        $(function() {
+            $('#qrcodeCanvas').qrcode({
+                render : "canvas",
+                text : "69020 30900 FT019 976456",
+                width : "200",
+                height: "200",
+                backgroud: "#ffffff",
+                foregroud: "#000000"
+            });
+        });
+    </script>
+
+</head>
+<body>
+<center>
+    <h1 style="margin-top:50px; margin-bottom:50px">请网点刷此二维码</h1>
+   <div id="qrcodeCanvas"></div>
+</center>
+
+</body>
+</html>

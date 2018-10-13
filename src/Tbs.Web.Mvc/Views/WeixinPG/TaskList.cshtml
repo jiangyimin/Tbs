@@ -1,0 +1,55 @@
+﻿@model Tbs.DomainModels.Dto.WxIdentifyDto
+@{
+    ViewBag.Title = "任务清单";
+    Layout = "~/Views/Shared/_LayoutWX.cshtml";
+}
+
+<form class="weui-cells weui-cells_form" name="fm" method="post">
+    <input class="weui-btn weui-btn_plain-default" type="button" value="选择清单外网点" onclick="selectOutlet()" style="margin-bottom:15px;" />
+
+    @if (@Model.Tasks.Count > 0)
+    {
+        for (int i = 0; i < Model.Tasks.Count; i++)
+        {
+            <a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg" onclick="selectTask(@Model.Tasks[i].TaskId, '@Model.Tasks[i].OutletCn', '@Model.Tasks[i].IdentifyTime')">
+                <div class="weui-media-box__bd">
+                    <h2 class="weui-media-box__title"> 网点：@Model.Tasks[i].OutletCn @Model.Tasks[i].OutletName</h2>
+                    <h2 class="weui-media-box__title"> 时间：@Model.Tasks[i].ArriveTime (@Model.Tasks[i].TaskType) 确认：@Model.Tasks[i].IdentifyTime</h2>
+                    @if (Model.Tasks[i].Remark != null) {
+                        <h2 class="weui-media-box__title"> 备注：@Model.Tasks[i].Remark</h2> 
+                    }                  
+                </div>
+            </a>
+        }
+    }
+    else
+    {
+        <h1 style="font-size: 24px">未列任务清单</h1>
+    }
+    <input type="hidden" name="TaskId" />
+    <input type="hidden" name="OutletCn" />
+</form>
+
+@section footer {
+    <script>
+        function selectOutlet() {
+            document.fm.action = "/WeixinPG/DoIdentify";
+            document.fm.submit();
+        }
+
+        function selectTask(taskId, outletCn, identifyTime) {
+            if (identifyTime.length > 4) 
+            {
+                alert('已交接');
+                return;
+            }
+
+            document.fm.TaskId.value = taskId;
+            document.fm.OutletCn.value = outletCn;
+            document.fm.action = "/WeixinPG/SelectTask";
+            document.fm.submit();
+        }
+    </script>
+}
+
+

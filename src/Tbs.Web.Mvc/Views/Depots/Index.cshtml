@@ -1,0 +1,49 @@
+﻿@{
+    Layout = "~/Views/Shared/_DataGridLayout.cshtml";
+    var getSV = new Func<string, string>((name) => SettingManager.GetSettingValue(name));
+}
+
+@section customScript
+{
+    <script type="text/javascript">
+        crud.options.name = 'Depots';
+        crud.options.title = abp.setting.get('@SettingNames.UI.DepotName');
+        crud.options.sortName = 'cn';
+        crud.options.columns = [[
+            { field: "cn", title: "编号", width: 100 },
+            { field: "name", title: "名称", width: 100 },
+            { field: "longitude", title: "经度", width: 120 },
+            { field: "latitude", title: "纬度", width: 120 },
+            { field: "useRouteForIdentify", title: "线路确认身份", width: 60 }
+        ]];
+    </script>
+}
+
+@*弹窗*@
+<div id="dlg" class="easyui-dialog" closed="true" modal="true" buttons="#dlg-buttons" align="center" style="width: 360px; padding: 10px;">
+    <form id="fm" class="easyui-form" method="post" novalidate>
+        <table class="edit-tbl">
+            <input id="id" name="id" type="hidden">
+            <tr>
+                <th><label for="cn">编号：</label></th>
+                <td><input name="cn" class="easyui-textbox" data-options="required:true, validType:'length[@Depot.MaxCnLength, @Depot.MaxCnLength]'" style="width: 100%"></td>
+            </tr>
+                <th><label for="name">名称：</label></th>
+                <td><input name="name" class="easyui-textbox" data-options="required:true, validType:'length[@getSV(SettingNames.EntityRules.NormalNameMinLength), @Depot.MaxNameLength]'" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="longitude">经度：</label></th>
+                <td><input name="longitude" class="easyui-numberbox" data-options="precision:6" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="latitude">纬度：</label></th>
+                <td><input name="latitude" class="easyui-numberbox" data-options="precision:6" style="width: 100%"></td>
+            </tr>
+            <tr>
+                <th><label for="useRouteForIdentify">线路确认身份：</label></th>
+                <td><input name="useRouteForIdentify" class="easyui-switchbutton" data-options="height:24,onText:'是',offText:'否'">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
